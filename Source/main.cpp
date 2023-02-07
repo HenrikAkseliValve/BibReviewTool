@@ -24,7 +24,7 @@
 /*
 String constants for column names.
 */
-const char * const Column_Names[]={"Name","Publication/Journal","Year","Entry type","Entry key"};
+const char * const Column_Names[]={"Name","Publication/Journal","Year","Number/volume","Entry type","Entry key"};
 
 /*
 Types of entries supported and field mappings to columns.
@@ -36,7 +36,7 @@ enum Supported_BibTex_Entries{
 	TEXBIB_ENTRY_GENERIC_NO_SUPPORT
 };
 const char *const Supported_BibTex_Entry_Names[]={"article","book"};
-const char *const Texbib_Field_Names[][3]={{"title","journal","year"},{"title","publisher","year"}};
+const char *const Texbib_Field_Names[][4]={{"title","journal","year","number"},{"title","publisher","year","volume"}};
 
 /*
 BibTeX Model that reads btparses AST tree.
@@ -71,7 +71,7 @@ class BibTeXModel : public QAbstractTableModel{
 	}
 
 	int columnCount(const QModelIndex & parent) const override{
-		return 5;
+		return 6;
 	}
 
 	QVariant data(const QModelIndex &index, int role) const override{
@@ -93,10 +93,10 @@ class BibTeXModel : public QAbstractTableModel{
 
 			// Find correct entry name. Handle entry type and key separately.
 			// Get entry key.
-			if(index.column()==3){
+			if(index.column()==4){
 				return QString(bt_entry_type(iteentry));
 			}
-			else if(index.column()==4){
+			else if(index.column()==5){
 				return QString(bt_entry_key(iteentry));
 			}
 			else{
@@ -208,13 +208,19 @@ class MainWindow : public QWidget{
 		// Initialize the model.
 		this->tex_model = new BibTeXModel(this,root);
 		this->per_cite_view->setModel(this->tex_model);
+		this->per_cite_view->setWordWrap(true);
+		this->per_cite_view->setColumnWidth(0,400);
+		this->per_cite_view->setColumnWidth(1,400);
+		this->per_cite_view->setColumnWidth(2,40);
+		this->per_cite_view->setColumnWidth(3,100);
+		this->per_cite_view->setColumnWidth(4,80);
 
 		// Initialize actions.
 		this->save_act = new QAction(tr("&Save"),this);
 		this->menu_file->addAction(this->save_act);
 
 		// Size the window.
-		this->resize(700,700);
+		this->resize(1600,1000);
 	};
 };
 
