@@ -266,8 +266,9 @@ class MainWindow : public QWidget{
 	File menu. Includes saving action.
 	*/
 	QMenu *menu_file;
-	QAction *add_citation_act;
 	QAction *save_act;
+	QAction *save_as_act;
+	QAction *add_citation_act;
 	/*
 	Tab handler for different data tables.
 	*/
@@ -316,6 +317,8 @@ class MainWindow : public QWidget{
 		// Initialize actions.
 		this->save_act = new QAction(tr("&Save"),this);
 		this->menu_file->addAction(this->save_act);
+		this->save_as_act = new QAction(tr("&Save as"),this);
+		this->menu_file->addAction(this->save_as_act);
 		this->add_citation_act = new QAction(tr("&Add citation"),this);
 		this->menu_file->addAction(this->add_citation_act);
 
