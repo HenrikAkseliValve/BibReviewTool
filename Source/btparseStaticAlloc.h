@@ -34,7 +34,7 @@ static AST *bt_alloc_ast(AST *right,AST *down,char *filename,char *text,bt_metat
 
 	// Allocation
 	AST *newnode=(AST*)malloc(sizeof(AST));
-	if(newnode) return NULL;
+	if(!newnode) return NULL;
 
 	// Initialization
 	// Member line is Initialize to -1 as we do
