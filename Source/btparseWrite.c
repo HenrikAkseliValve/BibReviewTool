@@ -1,11 +1,12 @@
-#include<stdlib.h>
-#include<btparse.h>
+#include <stdlib.h>
+#include <btparse.h>
 #define __STDC_ALLOC_LIB__
 #define __STDC_WANT_LIB_EXT2__ 1
-#include<string.h>
-#include"btparseStaticAlloc.h"
-#include"btparseWrite.h"
-
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include "btparseStaticAlloc.h"
+#include "btparseWrite.h"
 
 AST *bt_add_entry(AST *last_entry,char *entry,char *key){
 
@@ -43,6 +44,7 @@ AST *bt_add_entry(AST *last_entry,char *entry,char *key){
 
 	return last_entry->right;
 }
+
 AST *bt_add_field(AST *entry,const char *fieldname,char *fieldvalue){
 
 	// Get the first field and then find the last field.
@@ -66,23 +68,9 @@ AST *bt_add_field(AST *entry,const char *fieldname,char *fieldvalue){
 	                            );
 	if(!newvalue) goto FREE_ERROR1;
 
-
 	// Adding the field.
-	//
-	// NOTE: Function bt_set_text calls free on a old value.
-	//       Hence, since we do not have old value just
-	//       manually add it.
-	//       Also since free is used then use strdup to
-	//       make memory allocation.
-	lastfield->right = malloc(sizeof(AST));
-	if(!lastfield) return NULL;
-	lastfield->right->metatype = BTE_UNKNOWN;
-	lastfield->right->nodetype = BTAST_FIELD;
-	lastfield->right->filename = entry->filename;
-	lastfield->right->right=NULL;
-	lastfield->right->text = strdup(fieldname);
-
 	char *fieldnamecopy = strdup(fieldname);
+	if(!fieldnamecopy) goto FREE_ERROR2;
 	lastfield->right = bt_alloc_ast(NULL
 	                               ,newvalue
 	                               ,entry->filename
@@ -90,17 +78,26 @@ AST *bt_add_field(AST *entry,const char *fieldname,char *fieldvalue){
 	                               ,BTE_UNKNOWN
 	                               ,BTAST_FIELD
 	                               );
+	if(!lastfield->right) goto FREE_ERROR3;
 
 	return lastfield->right;
 
+	// If one malloc fails after first malloc jump here
+	// to free resources in right order.
+	FREE_ERROR3:
+	free(fieldnamecopy);
+	FREE_ERROR2:
+	free(newvalue);
 	FREE_ERROR1:
 	free(copyvalue);
 	return NULL;
 
 }
+
 void bt_set_field_value(AST *field,char *fieldvalue){
 	// Value of the field is down from the field node.
 	bt_set_text(field->down,fieldvalue);
 }
+
 void bt_save_file(AST *root){
 }
