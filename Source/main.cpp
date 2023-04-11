@@ -119,18 +119,30 @@ class BibTeXModel : public QAbstractTableModel{
 	/*
 	Constructor calculates metadata of BibTex AST root given.
 	*/
-	BibTeXModel(QObject *parent,AST *root) : QAbstractTableModel(parent){
-		this->root=root;
+	BibTeXModel(QObject *parent, AST *root) : QAbstractTableModel(parent){
+		this->root = root;
 
 		// Finding last citation and counting number of them.
 		// Needed to tell number of rows to table view.
-		this->last_entry=root;
-		while(this->last_entry->right){
+		this->last_entry = NULL;
+		this->last_entry = bt_next_entry(this->root,NULL);
+		// If last entry is NULL it means empty BibTeX file was give.
+		if(this->last_entry){
+			while(this->last_entry!=NULL && this->last_entry->right){
+				this->number_of_entries++;
+				this->last_entry = bt_next_entry(this->root,this->last_entry);
+			}
+			// Loop didn't add last entry.
 			this->number_of_entries++;
-			this->last_entry=bt_next_entry(this->root,this->last_entry);
 		}
-		// Loop didn't add last entry.
-		this->number_of_entries++;
+		else{
+			// Since it happens and right, which is to next entry, is zero
+			// offset position in the AST structure we can use this to make
+			// phantom first entry by root address. Since this assumes
+			// something about underline structure check the assumption.
+			static_assert(offsetof(AST,right)==0,"Code assumes that \"AST\" structure has member \"right\" on zero offset.");
+			this->last_entry = (AST *)&this->root;
+		}
 	}
 
 	/*
