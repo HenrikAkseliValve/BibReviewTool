@@ -1,8 +1,8 @@
 CPPFLAGS=`pkg-config --cflags Qt6Widgets`
-CFLAGS=
+CFLAGS=-D_GNU_SOURCE
 LIBS=`pkg-config --libs Qt6Widgets` -lbtparse
 
-OBJECT_FILES:=Source/btparseWrite.o
+OBJECT_FILES:=Source/btparseWrite.o Source/stdlibext.o
 
 DEBUG?=0
 ifeq ($(DEBUG),1)
@@ -14,6 +14,8 @@ endif
 LiteratureReview: $(OBJECT_FILES) Source/main.o
 	g++ $(CFLAGS) -o LiteratureReview $^ $(LIBS)
 Source/btparseWrite.o: Source/btparseWrite.c
+	gcc -c $(CFLAGS) -o $@ $^
+Source/stdlibext.o: Source/stdlibext.c
 	gcc -c $(CFLAGS) -o $@ $^
 Source/main.o: Source/main.cpp
 	g++ -c $(CFLAGS) $(CPPFLAGS) -o $@ $^
