@@ -32,7 +32,11 @@ void bt_set_field_value(AST *entry,char *fieldvalue);
 Save AST to the file. Save differs from writing by writing
 temporary file which is swapped with the actual file target.
 */
-void bt_save_file(AST *root);
+char *bt_save_file(const char* filepath,AST *root);
+/*
+Function to directly write the AST to given file description.
+*/
+char *bt_write_file(int fd,AST *root);
 
 #if defined(__cplusplus__) || defined(__cplusplus) || defined(c_plusplus)
 }

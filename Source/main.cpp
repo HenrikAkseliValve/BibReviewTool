@@ -191,16 +191,16 @@ class BibTeXModel : public QAbstractTableModel{
 
 				// Find entry type map it to id and use it and column index to
 				// get correct bibTeX field name for this column.
-				int colindex=index.column();
+				int colindex = index.column();
 
 				// Entry type has different fields in it.
 				// Hence map type name to supported types
 				// and maps fields from there.
-				char *typestr=bt_entry_type(iteentry);
-				int type=TEXBIB_ENTRY_GENERIC_NO_SUPPORT;
+				char *typestr = bt_entry_type(iteentry);
+				int type = TEXBIB_ENTRY_GENERIC_NO_SUPPORT;
 				for(int i=TEXBIB_ENTRY_GENERIC_NO_SUPPORT-1;i>=0;i--){
 					if(strcmp(typestr,Supported_BibTex_Entry_Types[i])==0){
-						type=i;
+						type = i;
 						break;
 					}
 				}
@@ -229,7 +229,7 @@ class BibTeXModel : public QAbstractTableModel{
 			char *utf8str = value.toString().toUtf8().data();
 
 			// Edit this row's field so find the entry.
-			AST* entry=findRowEntry(index,this->root);
+			AST* entry = findRowEntry(index,this->root);
 
 			// If field does not exist add the field.
 			AST *field;
@@ -244,7 +244,7 @@ class BibTeXModel : public QAbstractTableModel{
 		return false;
 	}
 
-	QVariant headerData(int section, Qt::Orientation orientation,int role = Qt::DisplayRole) const override{
+	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override{
 		if(role != Qt::DisplayRole) return QVariant();
 		if (orientation == Qt::Horizontal)
 			return QString(Column_Names[section]);
@@ -295,6 +295,19 @@ class MainWindow : public QWidget{
 	*/
 	BibTeXModel *tex_model;
 
+	/*
+	Methods for the menu actions.
+	*/
+	private slots:
+	/*
+	Save current file to same location.
+	*/
+	void save(){
+		const char *filepath = "TEST.bib";
+		bt_save_file(filepath,this->tex_model->root);
+	}
+
+	public:
 	MainWindow(AST *root) : QWidget(nullptr){
 
 		// Allocate layout for the main window.
@@ -329,6 +342,7 @@ class MainWindow : public QWidget{
 		// Initialize actions.
 		this->save_act = new QAction(tr("&Save"),this);
 		this->menu_file->addAction(this->save_act);
+		connect(this->save_act,&QAction::triggered,this,&MainWindow::save);
 		this->save_as_act = new QAction(tr("&Save as"),this);
 		this->menu_file->addAction(this->save_as_act);
 		this->add_citation_act = new QAction(tr("&Add citation"),this);
@@ -342,7 +356,7 @@ class MainWindow : public QWidget{
 /*
 Start the application here. Give bibTeX file as a input to the system.
 */
-int main(int argc,char *argv[]){
+int main(int argc, char *argv[]){
 	// Application sh*t. Houses the mainloop and other general
 	// initialization.
 	QApplication app = QApplication(argc,argv);
@@ -356,7 +370,7 @@ int main(int argc,char *argv[]){
 	// Read the bibTeX file.
 	bt_initialize();
 	boolean status;
-	AST *root=bt_parse_file(argv[1],0,&status);
+	AST *root = bt_parse_file(argv[1],0,&status);
 	if(status==FALSE){
 		std::cout << "Parsing bibTeX file failed!"<<std::endl;
 	}
@@ -366,7 +380,7 @@ int main(int argc,char *argv[]){
 	mainwindow.show();
 
 	//TODO: This gives thread control to Qt...
-	int returnvalue=app.exec();
+	int returnvalue = app.exec();
 
 	// Cleanup.
 	bt_free_ast(root);
